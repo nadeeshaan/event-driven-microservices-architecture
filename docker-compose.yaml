@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+    postgres:
+        image: postgres:latest
+        platform: linux/amd64
+        container_name: my_postgres
+        environment:
+            POSTGRES_DB: inventoryDB
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: test1234
+        ports:
+            - "5432:5432"
+        networks:
+          - acme-nw
+    adminer:
+        image: ghcr.io/jeliebig/adminer-autologin
+        platform: linux/amd64
+        environment:
+            ADMINER_PLUGINS: login-env-vars
+            ADMINER_DRIVER: pgsql
+            ADMINER_SERVER: my_postgres
+            ADMINER_USERNAME: admin
+            ADMINER_PASSWORD: test1234
+            ADMINER_DB: inventoryDB
+            ADMINER_DESIGN: dracula
+        ports:
+            - 8081:8080
+        networks:
+            - acme-nw
+networks:
+    acme-nw:
+        driver: bridge
