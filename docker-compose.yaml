@@ -28,6 +28,26 @@ services:
             - 8081:8080
         networks:
             - acme-nw
+    axonserver:
+        image: axoniq/axonserver:2024.0.2
+        container_name: axonserver
+        ports:
+            - "9090:9090"    # HTTP port
+            - "9091:9091"    # GRPC port
+            - "8224:8224"    # Cluster port
+        environment:
+            - axoniq.axonserver.name=inventory-server
+            - server.port=9090                      # Custom HTTP port if needed
+            - axoniq.axonserver.port=9091           # Custom GRPC port if needed
+            - AXONSERVER_EVENTSTORE=/data/eventstore
+            - AXONSERVER_CONTROLDB=/data/controldb
+        volumes:
+            - axonserver_data:/data
+        networks:
+            - acme-nw
+volumes:
+  axonserver_data:
+
 networks:
     acme-nw:
         driver: bridge
