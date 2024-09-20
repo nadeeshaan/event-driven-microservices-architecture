@@ -1,9 +1,7 @@
 package com.acme.inventory.services.impl;
 
-import com.acme.inventory.dto.AddProductDto;
-import com.acme.inventory.dto.AddProductResponseDto;
-import com.acme.inventory.dto.GetProductsResponseDto;
-import com.acme.inventory.dto.ProductStockDto;
+import com.acme.inventory.commands.products.UpdateProductCommand;
+import com.acme.inventory.dto.*;
 import com.acme.inventory.queries.GetProductQuery;
 import com.acme.inventory.commands.products.AddProductCommand;
 import com.acme.inventory.commands.products.AddStockCommand;
@@ -31,18 +29,20 @@ public class ProductService implements IProductService {
   }
 
   @Override
-  public AddProductResponseDto addProduct(AddProductDto productDto) {
+  public CompletableFuture<AddProductResponseDto> addProduct(AddProductDto productDto) {
     UUID productId = UUID.randomUUID();
     AddProductCommand command =
         new AddProductCommand(
             productId.toString(),
             productDto.getProductKind(),
             productDto.getName(),
+            productDto.getAuthor(),
             productDto.getDescription(),
-            productDto.getPrice());
-    this.commandGateway.send(command);
-
-    return new AddProductResponseDto(productId.toString());
+            productDto.getPrice(),
+            productDto.getDiscount());
+    return this.commandGateway
+        .send(command)
+        .thenApply(o -> new AddProductResponseDto(productId.toString()));
   }
 
   public void addStock(ProductStockDto stockDto, String productId) {
@@ -57,7 +57,20 @@ public class ProductService implements IProductService {
   }
 
   @Override
-  public CompletableFuture<GetProductsResponseDto> getProduct(String productId) {
-    return this.queryGateway.query(new GetProductQuery(productId), GetProductsResponseDto.class);
+  public CompletableFuture<GetProductOverviewResponseDto> getProduct(String productId) {
+    return this.queryGateway.query(new GetProductQuery(productId), GetProductOverviewResponseDto.class);
+  }
+
+  @Override
+  public CompletableFuture<GetProductOverviewResponseDto> updateProduct(
+      String id, UpdateProductDto updateProductDto) {
+    UpdateProductCommand command =
+        new UpdateProductCommand(
+            id,
+            updateProductDto.getPrice(),
+            updateProductDto.getDiscount(),
+            updateProductDto.getDescription());
+
+    return this.commandGateway.send(command);
   }
 }
