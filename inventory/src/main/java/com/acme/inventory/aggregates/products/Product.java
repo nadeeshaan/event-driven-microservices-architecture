@@ -2,11 +2,15 @@ package com.acme.inventory.aggregates.products;
 
 import com.acme.inventory.commands.products.AddProductCommand;
 import com.acme.inventory.commands.products.AddStockCommand;
+import com.acme.inventory.commands.products.UpdateProductCommand;
 import com.acme.inventory.events.products.StockProcessedEvent;
 import com.acme.inventory.commands.products.ProcessStockCommand;
 import com.acme.inventory.events.products.StockAddedEvent;
 import com.acme.inventory.events.products.ProductAddedEvent;
 
+import com.acme.inventory.events.products.ProductDetailsUpdatedEvent;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -14,12 +18,12 @@ import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 
 @Aggregate
+@Entity
 public class Product {
-  @AggregateIdentifier
-  String id;
-
+  @Id @AggregateIdentifier String id;
   ProductKind productKind;
   String name;
+  String author;
   String description;
   Double unitPrice;
   int stock;
@@ -33,8 +37,10 @@ public class Product {
             command.getId(),
             command.getProductKind(),
             command.getName(),
+            command.getAuthor(),
             command.getDescription(),
-            command.getPrice()));
+            command.getPrice(),
+            command.getDiscount()));
   }
 
   @CommandHandler
@@ -45,6 +51,16 @@ public class Product {
   @CommandHandler
   public void handle(ProcessStockCommand command) {
     AggregateLifecycle.apply(new StockProcessedEvent(command.getId(), command.getStock()));
+  }
+
+  @CommandHandler
+  public void handle(UpdateProductCommand command) {
+    AggregateLifecycle.apply(
+        new ProductDetailsUpdatedEvent(
+            command.getId(),
+            command.getDescription(),
+            command.getUnitPrice(),
+            command.getDiscount()));
   }
 
   @EventSourcingHandler
