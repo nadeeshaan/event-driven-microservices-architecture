@@ -57,8 +57,14 @@ public class ProductService implements IProductService {
   }
 
   @Override
+  public void releaseStock(ProductStockDto stockDto, String productId) {
+    // Implementation goes here
+  }
+
+  @Override
   public CompletableFuture<GetProductOverviewResponseDto> getProduct(String productId) {
-    return this.queryGateway.query(new GetProductQuery(productId), GetProductOverviewResponseDto.class);
+    return this.queryGateway.query(
+        new GetProductQuery(productId), GetProductOverviewResponseDto.class);
   }
 
   @Override
