@@ -1,5 +1,6 @@
 package com.acme.inventory.services.impl;
 
+import com.acme.inventory.commands.products.ReleaseStockCommand;
 import com.acme.inventory.commands.products.UpdateProductCommand;
 import com.acme.inventory.dto.*;
 import com.acme.inventory.queries.GetProductQuery;
@@ -58,7 +59,8 @@ public class ProductService implements IProductService {
 
   @Override
   public void releaseStock(ProductStockDto stockDto, String productId) {
-    // Implementation goes here
+    ReleaseStockCommand command = new ReleaseStockCommand(productId, stockDto.getQuantity());
+    this.commandGateway.send(command);
   }
 
   @Override
