@@ -2,6 +2,7 @@ package com.acme.inventory.aggregates.products;
 
 import com.acme.inventory.commands.products.AddProductCommand;
 import com.acme.inventory.commands.products.AddStockCommand;
+import com.acme.inventory.commands.products.ReleaseStockCommand;
 import com.acme.inventory.commands.products.UpdateProductCommand;
 import com.acme.inventory.events.products.StockProcessedEvent;
 import com.acme.inventory.commands.products.ProcessStockCommand;
@@ -9,6 +10,7 @@ import com.acme.inventory.events.products.StockAddedEvent;
 import com.acme.inventory.events.products.ProductAddedEvent;
 
 import com.acme.inventory.events.products.ProductDetailsUpdatedEvent;
+import com.acme.inventory.events.products.StockReleasedEvent;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import org.axonframework.commandhandling.CommandHandler;
@@ -52,6 +54,11 @@ public class Product {
   public void handle(ProcessStockCommand command) {
     AggregateLifecycle.apply(new StockProcessedEvent(command.getId(), command.getStock()));
   }
+  
+  @CommandHandler
+  public void handle(ReleaseStockCommand command) {
+    AggregateLifecycle.apply(new StockReleasedEvent(command.getId(), command.getStock()));
+  }
 
   @CommandHandler
   public void handle(UpdateProductCommand command) {
@@ -80,6 +87,11 @@ public class Product {
 
   @EventSourcingHandler
   public void on(StockProcessedEvent event) {
+    this.stock -= event.getStock();
+  }
+  
+  @EventSourcingHandler
+  public void on(StockReleasedEvent event) {
     this.stock -= event.getStock();
   }
 }
