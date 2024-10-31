@@ -14,6 +14,8 @@ public interface IProductService {
   void addStock(ProductStockDto stockDto, String productId);
 
   void processStock(ProductStockDto stockDto, String productId);
+  
+  void releaseStock(ProductStockDto stockDto, String productId);
 
   CompletableFuture<GetProductOverviewResponseDto> getProduct(String productId);
 

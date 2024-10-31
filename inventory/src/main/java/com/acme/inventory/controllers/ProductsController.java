@@ -40,6 +40,14 @@ public class ProductsController {
     return ResponseEntity.accepted().build();
   }
 
+  @PostMapping("/product/{id}/stock/release")
+  public ResponseEntity<Void> releaseStock(
+          @RequestBody ProductStockDto stockDto, @PathVariable String id) {
+    this.productService.processStock(stockDto, id);
+
+    return ResponseEntity.accepted().build();
+  }
+
   @GetMapping("/product/{id}")
   public CompletableFuture<GetProductOverviewResponseDto> getProduct(@PathVariable String id) {
     return this.productService.getProduct(id);
